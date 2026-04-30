@@ -1,0 +1,98 @@
+from flask import Flask, request, jsonify, render_template
+
+app = Flask(__name__)
+
+# ==========================================
+# GREEDY ALGORITHM IMPLEMENTATION
+# ==========================================
+def fractional_knapsack_greedy(capacity, items):
+    """
+    Solves the Fractional Knapsack problem using a Greedy Algorithm.
+    
+    The Greedy Choice Property here is:
+    Always pick the item with the highest value-to-weight ratio first.
+    If the knapsack cannot hold the entire item, take a fraction of it.
+    """
+    
+    # Step 1: Calculate the value-to-weight ratio for each item
+    for item in items:
+        item['ratio'] = item['value'] / item['weight']
+        
+    # Step 2: Sort items by their ratio in descending order (Greedy sorting)
+    # We want the most valuable items (per unit of weight) first.
+    items.sort(key=lambda x: x['ratio'], reverse=True)
+    
+    total_value = 0.0
+    selected_items = []
+    
+    # Step 3: Iterate through sorted items and fill the knapsack
+    for item in items:
+        if capacity == 0:
+            break # Knapsack is full
+            
+        if item['weight'] <= capacity:
+            # We can take the whole item
+            capacity -= item['weight']
+            total_value += item['value']
+            
+            selected_items.append({
+                'id': item['id'],
+                'name': item['name'],
+                'weight_taken': item['weight'],
+                'value_added': item['value'],
+                'fraction': 1.0, # 100% of the item taken
+                'color': item.get('color', '#4CAF50')
+            })
+        else:
+            # We can only take a fraction of the item
+            fraction = capacity / item['weight']
+            value_added = item['value'] * fraction
+            
+            total_value += value_added
+            
+            selected_items.append({
+                'id': item['id'],
+                'name': item['name'],
+                'weight_taken': capacity, # Took the remaining capacity
+                'value_added': value_added,
+                'fraction': fraction,
+                'color': item.get('color', '#4CAF50')
+            })
+            
+            # Knapsack is now full
+            capacity = 0 
+            
+    return {
+        'total_value': round(total_value, 2),
+        'selected_items': selected_items
+    }
+# ==========================================
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/optimize', methods=['POST'])
+def optimize_cargo():
+    data = request.json
+    
+    try:
+        capacity = float(data.get('capacity', 0))
+        items = data.get('items', [])
+        
+        if capacity <= 0:
+            return jsonify({'error': 'Capacity must be greater than 0'}), 400
+            
+        if not items:
+            return jsonify({'error': 'No items provided to optimize'}), 400
+            
+        # Call our explicit greedy algorithm
+        result = fractional_knapsack_greedy(capacity, items)
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Cargo Optimizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header style="margin-bottom: 1rem;">
+            <h1>Greedy Cargo Optimizer</h1>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Column: Inputs -->
+            <div class="input-section panel">
+                <h2>1. Set Ship Capacity</h2>
+                <div class="form-group">
+                    <label for="capacity">Total Weight Capacity (tons)</label>
+                    <input type="number" id="capacity" min="1" value="50" placeholder="e.g., 50">
+                </div>
+
+                <hr class="divider">
+
+                <h2>2. Add Cargo Items</h2>
+                <form id="item-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item-name">Item Name</label>
+                            <input type="text" id="item-name" required placeholder="e.g., Gold">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="item-weight">Weight (tons)</label>
+                            <input type="number" id="item-weight" min="1" required placeholder="e.g., 10">
+                        </div>
+                        <div class="form-group half">
+                            <label for="item-value">Total Value ($)</label>
+                            <input type="number" id="item-value" min="1" required placeholder="e.g., 60">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="add-btn">Add Item to Dock</button>
+                </form>
+
+                <div class="items-list-container">
+                    <h3>Items on Dock</h3>
+                    <ul id="items-list" class="items-list">
+                        <!-- Items will be injected here via JS -->
+                        <li class="empty-state">No items added yet.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Visualization -->
+            <div class="visualization-section panel">
+                <div class="header-with-btn">
+                    <h2>3. Optimization Result</h2>
+                    <button id="optimize-btn" class="btn btn-success">Run Greedy Algorithm</button>
+                </div>
+                
+                <div id="loading" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Calculating optimal load...</p>
+                </div>
+
+                <div id="results" class="hidden">
+                    <div class="summary-cards">
+                        <div class="card">
+                            <span class="card-title">Total Value</span>
+                            <span class="card-value highlight" id="res-total-value">$0</span>
+                        </div>
+                        <div class="card">
+                            <span class="card-title">Capacity Used</span>
+                            <span class="card-value" id="res-capacity-used">0 / 0 tons</span>
+                        </div>
+                    </div>
+
+                    <div class="knapsack-visualization">
+                        <div class="knapsack-bar-container">
+                            <div id="knapsack-bar" class="knapsack-bar"></div>
+                        </div>
+                        <p class="legend-text">Cargo Ship Hold</p>
+                    </div>
+
+                    <div class="selected-items-list">
+                        <h3>Greedy Selection Log</h3>
+                        <div class="log-explanation">
+                            <small><em>Sorted by highest Value/Weight ratio. Fractions taken if needed.</em></small>
+                        </div>
+                        <ul id="selected-list" class="items-list">
+                            <!-- Selected items will be injected here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
